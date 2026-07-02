@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: astera
+    ports:
+      - "5432:5432"
+    volumes:
+      - astera_pgdata:/var/lib/postgresql/data
+
+volumes:
+  astera_pgdata:
