@@ -8,19 +8,21 @@ import {
   updateProgramSchema,
 } from "@/lib/validation";
 import { ensureSession } from "./auth";
+import { authMiddleware } from "./middleware";
 
-export const listPrograms = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const listPrograms = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async () => {
     const session = await ensureSession();
 
     return await db
       .select()
       .from(programs)
       .where(eq(programs.userId, session.user.id));
-  },
-);
+  });
 
 export const getProgram = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
   .validator(idSchema)
   .handler(async ({ data }) => {
     const session = await ensureSession();
@@ -40,6 +42,7 @@ export const getProgram = createServerFn({ method: "GET" })
   });
 
 export const createProgram = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
   .validator(createProgramSchema)
   .handler(async ({ data }) => {
     const session = await ensureSession();
@@ -56,6 +59,7 @@ export const createProgram = createServerFn({ method: "POST" })
   });
 
 export const updateProgram = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
   .validator(updateProgramSchema)
   .handler(async ({ data }) => {
     const session = await ensureSession();
@@ -76,6 +80,7 @@ export const updateProgram = createServerFn({ method: "POST" })
   });
 
 export const deleteProgram = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
   .validator(idSchema)
   .handler(async ({ data }) => {
     const session = await ensureSession();
