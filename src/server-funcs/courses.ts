@@ -8,7 +8,7 @@ import {
   listCoursesSchema,
   updateCourseSchema,
 } from "@/lib/validation";
-import { authMiddleware } from "@/server/middleware";
+import { authMiddleware } from "@/server-funcs/middleware";
 
 export const listCourses = createServerFn({ method: "GET" })
   .middleware([authMiddleware])

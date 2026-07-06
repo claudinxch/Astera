@@ -10,7 +10,7 @@ import {
   programs,
   recommendationItems,
 } from "@/db/schema";
-import { authMiddleware } from "@/server/middleware";
+import { authMiddleware } from "@/server-funcs/middleware";
 
 // How many items go into a single day's recommendation. A "daily
 // recommendation" is meant to be a short, actionable list, not a full

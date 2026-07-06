@@ -1,5 +1,5 @@
 import { createMiddleware } from "@tanstack/react-start";
-import { ensureSession } from "@/server/auth";
+import { ensureSession } from "@/server-funcs/auth";
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(
   async ({ next }) => {

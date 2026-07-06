@@ -1,0 +1,17 @@
+import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeaders } from "@tanstack/react-start/server";
+import { authClient } from "@/lib/auth-client";
+
+export const getAuthUser = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const res = await authClient.getSession({
+    fetchOptions: {
+      headers: Object.fromEntries(getRequestHeaders()) as HeadersInit,
+    },
+  });
+
+  return res.data;
+});
+
+export type GetAuthUserResponse = Awaited<ReturnType<typeof getAuthUser>>;
