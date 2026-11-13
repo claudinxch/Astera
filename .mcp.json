@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "drizzle": {
+      "type": "stdio",
+      "command": "bun",
+      "args": [
+        "run",
+        "drizzle-kit",
+        "mcp"
+      ],
+      "env": {}
+    },
+    "shadcn": {
+      "type": "stdio",
+      "command": "bun",
+      "args": [
+        "run",
+        "shadcn",
+        "mcp"
+      ],
+      "env": {}
+    }
+  }
+}
