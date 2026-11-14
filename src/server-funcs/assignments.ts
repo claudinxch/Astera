@@ -11,6 +11,13 @@ import {
 } from "@/lib/validation";
 import { authMiddleware } from "./middleware";
 
+type AssignmentStatus = (typeof assignments.$inferSelect)["status"];
+
+// Keeps the original completion time so re-saving a completed assignment
+// doesn't move it in the workload chart.
+const nextCompletedAt = (status: AssignmentStatus, current: Date | null) =>
+  status === "completed" ? (current ?? new Date()) : null;
+
 export const listAssignments = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .validator(listAssignmentsSchema)
@@ -119,6 +126,7 @@ export const updateAssignment = createServerFn({ method: "POST" })
         customType: data.customType,
         importance: data.importance,
         status: data.status,
+        completedAt: nextCompletedAt(data.status, row.assignment.completedAt),
         estimatedHours: data.estimatedHours.toString(),
         updatedAt: new Date(),
       })
@@ -180,7 +188,7 @@ export const markAssignmentComplete = createServerFn({ method: "POST" })
       .update(assignments)
       .set({
         status: "completed",
-        completedAt: new Date(),
+        completedAt: nextCompletedAt("completed", row.assignment.completedAt),
         updatedAt: new Date(),
       })
       .where(eq(assignments.id, data.id))
