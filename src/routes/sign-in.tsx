@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { clearCachedSession } from "@/lib/session-cache";
 
 export const Route = createFileRoute("/sign-in")({
   component: RouteComponent,
@@ -22,6 +23,7 @@ function RouteComponent() {
       return;
     }
 
+    clearCachedSession();
     navigate({ to: "/app" });
   };
 
