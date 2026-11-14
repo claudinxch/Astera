@@ -48,6 +48,8 @@ export const createProgram = createServerFn({ method: "POST" })
       .values({
         userId: context.session.user.id,
         name: data.name.trim(),
+        institution: data.institution,
+        gradingScale: data.gradingScale,
       })
       .returning();
 
@@ -60,7 +62,12 @@ export const updateProgram = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const [program] = await db
       .update(programs)
-      .set({ name: data.name.trim(), updatedAt: new Date() })
+      .set({
+        name: data.name.trim(),
+        institution: data.institution,
+        gradingScale: data.gradingScale,
+        updatedAt: new Date(),
+      })
       .where(
         and(
           eq(programs.id, data.id),

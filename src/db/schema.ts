@@ -9,6 +9,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import { GRADING_SCALES } from "@/lib/grading-scale";
 import { user } from "./auth-schema";
 
 export const assignmentTypeEnum = pgEnum("assignment_type", [
@@ -28,12 +29,16 @@ export const assignmentStatusEnum = pgEnum("assignment_status", [
 
 export const examStatusEnum = pgEnum("exam_status", ["upcoming", "completed"]);
 
+export const gradingScaleEnum = pgEnum("grading_scale", GRADING_SCALES);
+
 export const programs = pgTable("programs", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
+  institution: text("institution"),
+  gradingScale: gradingScaleEnum("grading_scale").notNull().default("percent"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

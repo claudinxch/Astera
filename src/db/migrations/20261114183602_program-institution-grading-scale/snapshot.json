@@ -1,0 +1,112 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "b856d010-2781-4f54-8305-d46025991809",
+  "prevIds": [
+    "18dff214-b7ff-425b-9f91-77f3ce094411"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "grading_scale"
+      ],
+      "writes": [
+        "s|enum|public.grading_scale",
+        "n|enum|public.grading_scale",
+        "e|enum|public.grading_scale",
+        "n|type|public.grading_scale"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "programs",
+        "institution"
+      ],
+      "writes": [
+        "s|col|public.programs.institution",
+        "n|col|public.programs.institution",
+        "e|col|public.programs.institution"
+      ],
+      "reads": [
+        "n|tbl|public.programs",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "programs",
+        "grading_scale"
+      ],
+      "writes": [
+        "s|col|public.programs.grading_scale",
+        "n|col|public.programs.grading_scale",
+        "e|col|public.programs.grading_scale"
+      ],
+      "reads": [
+        "n|tbl|public.programs",
+        "n|sch|public",
+        "n|enum|public.grading_scale"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "grading_scale",
+        "values": [
+          "percent",
+          "ten",
+          "letter_us"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "programs",
+        "name": "institution",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "programs",
+        "name": "grading_scale",
+        "type": "grading_scale",
+        "typeSchema": "public",
+        "notNull": true,
+        "dimensions": 0,
+        "default": "'percent'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    }
+  ]
+}

@@ -46,7 +46,7 @@ Run `bun run check` and `bun run typecheck` before considering work done.
 
 ## Domain decisions
 
-- Grades are entered in the program's own scale (e.g. 0–10, 0–100, A–F) and stored normalized as 0–100. Letter grades map to a configurable percentage per program.
+- Grades are entered in the program's own scale (e.g. 0–10, 0–100, A–F) and stored normalized as 0–100. Each grading scale has a fixed conversion table in `src/lib/grading-scale.ts`, used for both input and display. A letter is stored as the midpoint of its band (B = 80–89 → 85) and displayed by band thresholds, so a letter always round-trips.
 - Exams and assignments have an importance (1–5) used for prioritization.
 - Weight (% of final grade) is optional and used only for grade calculation; without weights the course grade is a simple average. The UI must explain weights and show when a grade is an unweighted estimate.
 
