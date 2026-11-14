@@ -47,7 +47,7 @@ export const listAssignmentsSchema = z.object({
 export const assignmentType = z.enum([
   "homework",
   "project",
-  "quiz",
+  "test",
   "lab",
   "reading",
   "other",

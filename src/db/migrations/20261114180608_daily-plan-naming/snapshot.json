@@ -1,0 +1,132 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "18dff214-b7ff-425b-9f91-77f3ce094411",
+  "prevIds": [
+    "12d64b64-8761-438e-b9de-15bcb8073483"
+  ],
+  "footprints": [
+    {
+      "statementType": "rename_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "recommendation_items"
+      ],
+      "writes": [
+        "s|tbl|public.recommendation_items",
+        "n|tbl|public.recommendation_items",
+        "n|rel|public.recommendation_items",
+        "n|type|public.recommendation_items",
+        "s|tbl|public.daily_plan_items",
+        "n|tbl|public.daily_plan_items",
+        "n|rel|public.daily_plan_items",
+        "n|type|public.daily_plan_items"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "rename_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "daily_recommendations"
+      ],
+      "writes": [
+        "s|tbl|public.daily_recommendations",
+        "n|tbl|public.daily_recommendations",
+        "n|rel|public.daily_recommendations",
+        "n|type|public.daily_recommendations",
+        "s|tbl|public.daily_plans",
+        "n|tbl|public.daily_plans",
+        "n|rel|public.daily_plans",
+        "n|type|public.daily_plans"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "rename_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "daily_plan_items",
+        "daily_recommendation_id"
+      ],
+      "writes": [
+        "s|col|public.daily_plan_items.daily_recommendation_id",
+        "n|col|public.daily_plan_items.daily_recommendation_id",
+        "s|col|public.daily_plan_items.daily_plan_id",
+        "n|col|public.daily_plan_items.daily_plan_id"
+      ],
+      "reads": [
+        "n|tbl|public.daily_plan_items",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "recreate_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "assignment_type"
+      ],
+      "writes": [
+        "s|enum|public.assignment_type",
+        "n|enum|public.assignment_type",
+        "e|enum|public.assignment_type",
+        "n|type|public.assignment_type",
+        "s|colprop|public.assignments.type.type",
+        "s|colprop|public.assignments.type.default"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|tbl|public.assignments",
+        "n|sch|public",
+        "n|col|public.assignments.type"
+      ],
+      "sqlHash": "b495171dd9a4fc01"
+    }
+  ],
+  "deltas": [
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"recommendation_items\"]",
+      "set": {
+        "name": "daily_plan_items"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"daily_recommendations\"]",
+      "set": {
+        "name": "daily_plans"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "columns\u0000[\"public\",\"daily_plan_items\",\"daily_recommendation_id\"]",
+      "set": {
+        "name": "daily_plan_id"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "enums\u0000[\"public\",\"assignment_type\"]",
+      "set": {
+        "values": [
+          "homework",
+          "project",
+          "test",
+          "lab",
+          "reading",
+          "other"
+        ]
+      }
+    }
+  ]
+}

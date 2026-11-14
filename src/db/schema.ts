@@ -14,7 +14,7 @@ import { user } from "./auth-schema";
 export const assignmentTypeEnum = pgEnum("assignment_type", [
   "homework",
   "project",
-  "quiz",
+  "test",
   "lab",
   "reading",
   "other",
@@ -88,7 +88,7 @@ export const exams = pgTable("exams", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const dailyRecommendations = pgTable("daily_recommendations", {
+export const dailyPlans = pgTable("daily_plans", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id")
     .notNull()
@@ -97,11 +97,11 @@ export const dailyRecommendations = pgTable("daily_recommendations", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const recommendationItems = pgTable("recommendation_items", {
+export const dailyPlanItems = pgTable("daily_plan_items", {
   id: uuid("id").defaultRandom().primaryKey(),
-  dailyRecommendationId: uuid("daily_recommendation_id")
+  dailyPlanId: uuid("daily_plan_id")
     .notNull()
-    .references(() => dailyRecommendations.id, { onDelete: "cascade" }),
+    .references(() => dailyPlans.id, { onDelete: "cascade" }),
   assignmentId: uuid("assignment_id").references(() => assignments.id, {
     onDelete: "cascade",
   }),
@@ -120,8 +120,8 @@ export const relations = defineRelations(
     courses,
     assignments,
     exams,
-    dailyRecommendations,
-    recommendationItems,
+    dailyPlans,
+    dailyPlanItems,
   },
   (r) => ({
     programs: {
@@ -140,29 +140,29 @@ export const relations = defineRelations(
         from: r.assignments.courseId,
         to: r.courses.id,
       }),
-      recommendationItems: r.many.recommendationItems(),
+      dailyPlanItems: r.many.dailyPlanItems(),
     },
     exams: {
       course: r.one.courses({
         from: r.exams.courseId,
         to: r.courses.id,
       }),
-      recommendationItems: r.many.recommendationItems(),
+      dailyPlanItems: r.many.dailyPlanItems(),
     },
-    dailyRecommendations: {
-      items: r.many.recommendationItems(),
+    dailyPlans: {
+      items: r.many.dailyPlanItems(),
     },
-    recommendationItems: {
-      dailyRecommendation: r.one.dailyRecommendations({
-        from: r.recommendationItems.dailyRecommendationId,
-        to: r.dailyRecommendations.id,
+    dailyPlanItems: {
+      dailyPlan: r.one.dailyPlans({
+        from: r.dailyPlanItems.dailyPlanId,
+        to: r.dailyPlans.id,
       }),
       assignment: r.one.assignments({
-        from: r.recommendationItems.assignmentId,
+        from: r.dailyPlanItems.assignmentId,
         to: r.assignments.id,
       }),
       exam: r.one.exams({
-        from: r.recommendationItems.examId,
+        from: r.dailyPlanItems.examId,
         to: r.exams.id,
       }),
     },
