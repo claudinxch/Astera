@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { defineRelations } from "drizzle-orm";
 import {
   date,
   integer,
@@ -114,56 +114,57 @@ export const recommendationItems = pgTable("recommendation_items", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const programsRelations = relations(programs, ({ many }) => ({
-  courses: many(courses),
-}));
-
-export const coursesRelations = relations(courses, ({ one, many }) => ({
-  program: one(programs, {
-    fields: [courses.programId],
-    references: [programs.id],
-  }),
-  assignments: many(assignments),
-  exams: many(exams),
-}));
-
-export const assignmentsRelations = relations(assignments, ({ one, many }) => ({
-  course: one(courses, {
-    fields: [assignments.courseId],
-    references: [courses.id],
-  }),
-  recommendationItems: many(recommendationItems),
-}));
-
-export const examsRelations = relations(exams, ({ one, many }) => ({
-  course: one(courses, {
-    fields: [exams.courseId],
-    references: [courses.id],
-  }),
-  recommendationItems: many(recommendationItems),
-}));
-
-export const dailyRecommendationsRelations = relations(
-  dailyRecommendations,
-  ({ many }) => ({
-    items: many(recommendationItems),
-  }),
-);
-
-export const recommendationItemsRelations = relations(
-  recommendationItems,
-  ({ one }) => ({
-    dailyRecommendation: one(dailyRecommendations, {
-      fields: [recommendationItems.dailyRecommendationId],
-      references: [dailyRecommendations.id],
-    }),
-    assignment: one(assignments, {
-      fields: [recommendationItems.assignmentId],
-      references: [assignments.id],
-    }),
-    exam: one(exams, {
-      fields: [recommendationItems.examId],
-      references: [exams.id],
-    }),
+export const relations = defineRelations(
+  {
+    programs,
+    courses,
+    assignments,
+    exams,
+    dailyRecommendations,
+    recommendationItems,
+  },
+  (r) => ({
+    programs: {
+      courses: r.many.courses(),
+    },
+    courses: {
+      program: r.one.programs({
+        from: r.courses.programId,
+        to: r.programs.id,
+      }),
+      assignments: r.many.assignments(),
+      exams: r.many.exams(),
+    },
+    assignments: {
+      course: r.one.courses({
+        from: r.assignments.courseId,
+        to: r.courses.id,
+      }),
+      recommendationItems: r.many.recommendationItems(),
+    },
+    exams: {
+      course: r.one.courses({
+        from: r.exams.courseId,
+        to: r.courses.id,
+      }),
+      recommendationItems: r.many.recommendationItems(),
+    },
+    dailyRecommendations: {
+      items: r.many.recommendationItems(),
+    },
+    recommendationItems: {
+      dailyRecommendation: r.one.dailyRecommendations({
+        from: r.recommendationItems.dailyRecommendationId,
+        to: r.dailyRecommendations.id,
+      }),
+      assignment: r.one.assignments({
+        from: r.recommendationItems.assignmentId,
+        to: r.assignments.id,
+      }),
+      exam: r.one.exams({
+        from: r.recommendationItems.examId,
+        to: r.exams.id,
+      }),
+    },
   }),
 );
