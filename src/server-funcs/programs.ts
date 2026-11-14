@@ -7,31 +7,29 @@ import {
   idSchema,
   updateProgramSchema,
 } from "@/lib/validation";
-import { ensureSession } from "./auth";
 import { authMiddleware } from "./middleware";
 
 export const listPrograms = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
-  .handler(async () => {
-    const session = await ensureSession();
-
+  .handler(async ({ context }) => {
     return await db
       .select()
       .from(programs)
-      .where(eq(programs.userId, session.user.id));
+      .where(eq(programs.userId, context.session.user.id));
   });
 
 export const getProgram = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .validator(idSchema)
-  .handler(async ({ data }) => {
-    const session = await ensureSession();
-
+  .handler(async ({ data, context }) => {
     const [program] = await db
       .select()
       .from(programs)
       .where(
-        and(eq(programs.id, data.id), eq(programs.userId, session.user.id)),
+        and(
+          eq(programs.id, data.id),
+          eq(programs.userId, context.session.user.id),
+        ),
       );
 
     if (!program) {
@@ -44,13 +42,11 @@ export const getProgram = createServerFn({ method: "GET" })
 export const createProgram = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(createProgramSchema)
-  .handler(async ({ data }) => {
-    const session = await ensureSession();
-
+  .handler(async ({ data, context }) => {
     const [program] = await db
       .insert(programs)
       .values({
-        userId: session.user.id,
+        userId: context.session.user.id,
         name: data.name.trim(),
       })
       .returning();
@@ -61,14 +57,15 @@ export const createProgram = createServerFn({ method: "POST" })
 export const updateProgram = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(updateProgramSchema)
-  .handler(async ({ data }) => {
-    const session = await ensureSession();
-
+  .handler(async ({ data, context }) => {
     const [program] = await db
       .update(programs)
       .set({ name: data.name.trim(), updatedAt: new Date() })
       .where(
-        and(eq(programs.id, data.id), eq(programs.userId, session.user.id)),
+        and(
+          eq(programs.id, data.id),
+          eq(programs.userId, context.session.user.id),
+        ),
       )
       .returning();
 
@@ -82,13 +79,14 @@ export const updateProgram = createServerFn({ method: "POST" })
 export const deleteProgram = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(idSchema)
-  .handler(async ({ data }) => {
-    const session = await ensureSession();
-
+  .handler(async ({ data, context }) => {
     const [deleted] = await db
       .delete(programs)
       .where(
-        and(eq(programs.id, data.id), eq(programs.userId, session.user.id)),
+        and(
+          eq(programs.id, data.id),
+          eq(programs.userId, context.session.user.id),
+        ),
       )
       .returning({ id: programs.id });
 

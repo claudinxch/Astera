@@ -1,57 +1,33 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import {
-  type GetAuthUserResponse,
-  getAuthUser,
-} from "@/server-funcs/get-auth-user";
-
-export type WindowWithCachedSession = Window & {
-  cachedSession?: GetAuthUserResponse;
-};
+import { getCachedSession, setCachedSession } from "@/lib/session-cache";
+import { getSession } from "@/server-funcs/auth";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: async () => {
-    let sessionData =
-      typeof window !== "undefined"
-        ? (window as WindowWithCachedSession).cachedSession
-        : undefined;
+    const cached = getCachedSession();
+    if (cached) return cached;
 
-    if (sessionData) {
-      return sessionData;
+    const session = await getSession();
+
+    if (!session) {
+      throw redirect({ to: "/" });
     }
 
-    sessionData = await getAuthUser();
-
-    if (!sessionData) {
-      throw redirect({
-        to: "/",
-      });
-    }
-
-    if (typeof window !== "undefined") {
-      (window as WindowWithCachedSession).cachedSession = sessionData;
-    }
-
-    return sessionData;
+    setCachedSession(session);
+    return session;
   },
-  component: App,
+  component: Outlet,
   ssr: "data-only",
   wrapInSuspense: true,
   pendingComponent: PendingComponent,
   pendingMinMs: 200,
-  pendingMs: 50,
+  pendingMs: 300,
 });
-
-function App() {
-  // const { user } = Route.useRouteContext();
-
-  return <Outlet />;
-}
 
 function PendingComponent() {
   return (
-    <div className="w-screen h-screen flex p-2 pl-64">
+    <div className="fade-in-0 flex h-screen w-screen animate-in p-2 pl-64 duration-150">
       <Card className="flex-1 bg-muted/30" />
     </div>
   );

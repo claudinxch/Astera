@@ -1,4 +1,4 @@
-import { Link, useMatches } from "@tanstack/react-router";
+import { getRouteApi, Link, useMatches } from "@tanstack/react-router";
 import { Activity } from "lucide-react";
 import type * as React from "react";
 import { NavUser } from "@/components/sidebar/nav-user";
@@ -36,15 +36,11 @@ const items: Item[] = [
   },
 ];
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-};
+const appRoute = getRouteApi("/app");
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const matches = useMatches();
+  const { user } = appRoute.useRouteContext();
   return (
     <Sidebar
       variant="inset"
@@ -52,7 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       className="bg-none"
       {...props}
     >
-      <SidebarHeader className="bg-none flex-row">
+      <SidebarHeader className="flex-row bg-none">
         <ProgramSwitcher />
       </SidebarHeader>
       <SidebarContent className="bg-none">
@@ -98,7 +94,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser
+          user={{ name: user.name, email: user.email, avatar: user.image }}
+        />
       </SidebarFooter>
     </Sidebar>
   );
