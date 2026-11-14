@@ -25,7 +25,7 @@ Load the `astera` skill. It carries the full domain vocabulary, design decisions
 
 ### Correctness (block merge)
 - [ ] Every server function that uses `authMiddleware` reads the user from `context.session` only — never calls `ensureSession()` inside the handler
-- [ ] Every query that reads or writes app data joins back to `programs.userId`
+- [ ] Every query that reads or writes app data enforces ownership: program data joins back to `programs.userId`; user-level tables (e.g. `daily_plans`) filter on their own `userId`
 - [ ] `updateAssignment` sets `completedAt` when `status` is changed to `completed`, and clears it when status changes away from `completed`
 - [ ] No `numeric` column value is used as a number without being converted with `Number()` first
 - [ ] No `git commit` or `git push` was run (check `git log` against the base branch)

@@ -50,7 +50,7 @@ Use exact terms. Challenge any code or comment that uses an avoided term.
 
 **Server functions**
 - Always use `authMiddleware`; read the user from `context.session` — never call `ensureSession()` inside a handler
-- Every query joins back to `programs.userId` — no exceptions
+- Every query enforces ownership: program data joins back to `programs.userId`; user-level tables with their own `userId` (e.g. `daily_plans`) filter on it directly
 - Drizzle `numeric` columns return strings; convert with `Number()` at the server-function boundary
 - Files: `src/server-funcs/<entity>.ts`, schemas: `src/lib/validation.ts`
 

@@ -33,7 +33,7 @@ Run `bun run check` and `bun run typecheck` before considering work done.
 ### Data and server
 
 - Server functions live in `src/server-funcs/<entity>.ts`, use `authMiddleware`, and read the user from `context.session` (don't call `ensureSession()` again).
-- Every query enforces ownership by joining back to `programs.userId`.
+- Every query enforces ownership: program data joins back to `programs.userId`; user-level tables with their own `userId` (e.g. `daily_plans`) filter on it directly.
 - Input validation uses Zod schemas from `src/lib/validation.ts`.
 - Drizzle `numeric` columns come back as strings: convert at the server-function boundary.
 - Every schema change gets a migration in `src/db/migrations`.

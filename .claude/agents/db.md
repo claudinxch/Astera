@@ -21,7 +21,7 @@ Drizzle ORM + drizzle-kit on PostgreSQL. Schema files: `src/db/schema.ts` (app) 
 
 ## Ownership model
 
-Every app table traces back to a user through `programs.userId`. Every query that reads or writes app data must enforce this by joining back to `programs`. No query returns data for a user who does not own it.
+Program data (courses, assignments, exams and their children) traces back to a user through `programs.userId`; every query on it must join back to `programs`. User-level tables that carry their own `userId` (e.g. `daily_plans`) filter on it directly, and their child rows are reached only through an owned parent. No query returns data for a user who does not own it.
 
 ## Server functions
 
