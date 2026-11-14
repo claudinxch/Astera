@@ -1,11 +1,13 @@
+import { drizzleAdapter } from "@better-auth/drizzle-adapter/relations-v2";
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { db } from "@/db";
+import * as authSchema from "@/db/auth-schema";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
+    schema: authSchema,
   }),
   baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
