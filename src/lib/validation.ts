@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { GRADING_SCALES } from "@/lib/grading-scale";
 
 export const idSchema = z.object({
   id: z.uuid(),
@@ -6,16 +7,33 @@ export const idSchema = z.object({
 
 // Programs
 
+const programNameSchema = z
+  .string()
+  .trim()
+  .min(1, "Name is required")
+  .max(100, "Name must be 100 characters or fewer");
+
+const institutionSchema = z
+  .string()
+  .trim()
+  .max(100, "Institution must be 100 characters or fewer")
+  .optional()
+  .transform((value) => value || null);
+
 export const createProgramSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
+  name: programNameSchema,
+  institution: institutionSchema,
+  gradingScale: z.enum(GRADING_SCALES).default("percent"),
 });
 
 export const updateProgramSchema = z.object({
   id: z.uuid(),
-  name: z.string().trim().min(1, "Name is required"),
+  name: programNameSchema,
+  institution: institutionSchema,
+  gradingScale: z.enum(GRADING_SCALES),
 });
 
-// Coursers
+// Courses
 
 export const listCoursesSchema = z.object({
   programId: z.uuid(),
