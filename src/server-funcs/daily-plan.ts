@@ -5,21 +5,16 @@ import { db } from "@/db";
 import {
   assignments,
   courses,
-  dailyRecommendations,
+  dailyPlanItems,
+  dailyPlans,
   exams,
   programs,
-  recommendationItems,
 } from "@/db/schema";
 import { authMiddleware } from "@/server-funcs/middleware";
 
-// How many items go into a single day's recommendation. A "daily
-// recommendation" is meant to be a short, actionable list, not a full
-// dump of everything outstanding.
 const TOP_N = 5;
 
-// Days-until-due beyond which urgency stops mattering for scoring
-// purposes. Keeps "due in 20 days" from scoring meaningfully
-// differently than "due in 200 days" — both just become 0.
+// Caps urgency so far-off deadlines all score 0 instead of differing slightly.
 const URGENCY_WINDOW_DAYS = 14;
 
 const todayDateString = (): string => {
@@ -32,8 +27,6 @@ const daysUntil = (date: Date): number => {
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 };
 
-// Urgency score, 0-10. Overdue or due today/tomorrow scores highest.
-// Linearly decays to 0 at URGENCY_WINDOW_DAYS out.
 const urgencyScore = (daysUntilDue: number): number => {
   if (daysUntilDue <= 0) return 10;
   if (daysUntilDue >= URGENCY_WINDOW_DAYS) return 0;
@@ -58,9 +51,7 @@ const dateParamSchema = z.object({
   date: z.iso.date().optional(),
 });
 
-// ---- Generate (or regenerate) a day's recommendation (defaults to today, server UTC) ----
-
-export const generateDailyRecommendation = createServerFn({ method: "POST" })
+export const generateDailyPlan = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(dateParamSchema)
   .handler(async ({ data, context }) => {
@@ -134,28 +125,25 @@ export const generateDailyRecommendation = createServerFn({ method: "POST" })
       .slice(0, TOP_N);
 
     await db
-      .delete(dailyRecommendations)
+      .delete(dailyPlans)
       .where(
-        and(
-          eq(dailyRecommendations.userId, userId),
-          eq(dailyRecommendations.date, targetDate),
-        ),
+        and(eq(dailyPlans.userId, userId), eq(dailyPlans.date, targetDate)),
       );
 
-    const [recommendation] = await db
-      .insert(dailyRecommendations)
+    const [plan] = await db
+      .insert(dailyPlans)
       .values({ userId, date: targetDate })
       .returning();
 
     if (topItems.length === 0) {
-      return { recommendation, items: [] };
+      return { plan, items: [] };
     }
 
     const insertedItems = await db
-      .insert(recommendationItems)
+      .insert(dailyPlanItems)
       .values(
         topItems.map((item) => ({
-          dailyRecommendationId: recommendation.id,
+          dailyPlanId: plan.id,
           assignmentId: item.assignmentId,
           examId: item.examId,
           reason: item.reason,
@@ -164,47 +152,39 @@ export const generateDailyRecommendation = createServerFn({ method: "POST" })
       )
       .returning();
 
-    return { recommendation, items: insertedItems };
+    return { plan, items: insertedItems };
   });
 
-// ---- Get a day's recommendation (defaults to today, server UTC), with titles joined in ----
-
-export const getDailyRecommendation = createServerFn({ method: "GET" })
+export const getDailyPlan = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .validator(dateParamSchema)
   .handler(async ({ data, context }) => {
     const userId = context.session.user.id;
     const targetDate = data.date ?? todayDateString();
 
-    const [recommendation] = await db
+    const [plan] = await db
       .select()
-      .from(dailyRecommendations)
+      .from(dailyPlans)
       .where(
-        and(
-          eq(dailyRecommendations.userId, userId),
-          eq(dailyRecommendations.date, targetDate),
-        ),
+        and(eq(dailyPlans.userId, userId), eq(dailyPlans.date, targetDate)),
       );
 
-    if (!recommendation) {
+    if (!plan) {
       return null;
     }
 
     const rows = await db
       .select({
-        item: recommendationItems,
+        item: dailyPlanItems,
         assignmentTitle: assignments.title,
         assignmentDueDate: assignments.dueDate,
         examTitle: exams.title,
         examDate: exams.date,
       })
-      .from(recommendationItems)
-      .leftJoin(
-        assignments,
-        eq(recommendationItems.assignmentId, assignments.id),
-      )
-      .leftJoin(exams, eq(recommendationItems.examId, exams.id))
-      .where(eq(recommendationItems.dailyRecommendationId, recommendation.id));
+      .from(dailyPlanItems)
+      .leftJoin(assignments, eq(dailyPlanItems.assignmentId, assignments.id))
+      .leftJoin(exams, eq(dailyPlanItems.examId, exams.id))
+      .where(eq(dailyPlanItems.dailyPlanId, plan.id));
 
     const items = rows.map((r) => ({
       id: r.item.id,
@@ -217,5 +197,5 @@ export const getDailyRecommendation = createServerFn({ method: "GET" })
 
     items.sort((a, b) => b.priorityScore - a.priorityScore);
 
-    return { recommendation, items };
+    return { plan, items };
   });

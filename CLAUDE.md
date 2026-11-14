@@ -1,6 +1,6 @@
 # Astera
 
-Study-management app for university students: they track programs, courses, assignments, exams and study time, and AI helps them plan (daily recommendations, study schedules, later notes, quizzes and flashcards). UI is in English.
+Study-management app for university students: they track programs, courses, assignments, exams and study time, and AI helps them plan (daily plans, study schedules, later notes, quizzes and flashcards). UI is in English.
 
 ## Stack
 
@@ -53,7 +53,7 @@ Run `bun run check` and `bun run typecheck` before considering work done.
 ## AI
 
 - Vercel AI SDK, provider-agnostic. Default to Gemini Flash-Lite, a stronger Flash model for heavy tasks (schedules, quizzes).
-- AI sits on top of the deterministic scoring engine (`server-funcs/recommendation.ts`): the engine ranks, the AI plans and explains. Features must degrade gracefully if the AI call fails.
+- AI sits on top of the deterministic scoring engine (`server-funcs/daily-plan.ts`): the engine ranks, the AI plans and explains. Features must degrade gracefully if the AI call fails.
 - Prefer structured output validated by Zod over parsing free text.
 
 ## App structure

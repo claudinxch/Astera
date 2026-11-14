@@ -44,7 +44,7 @@ Use exact terms. Challenge any code or comment that uses an avoided term.
 
 **Importance vs Weight** — `importance` (1–5) feeds the scoring engine for prioritisation. `weight` (0–100%) is an optional field used only for grade calculation. Never conflate them.
 
-**AI sits on top of the engine** — `server-funcs/recommendation.ts` computes Priority Scores. The AI schedules and explains on top of that output. AI features must degrade gracefully if the API call fails.
+**AI sits on top of the engine** — `server-funcs/daily-plan.ts` computes Priority Scores. The AI schedules and explains on top of that output. AI features must degrade gracefully if the API call fails.
 
 ## Coding patterns
 
