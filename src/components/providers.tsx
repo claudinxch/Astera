@@ -1,5 +1,6 @@
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import type * as React from "react";
+import { Toaster } from "@/components/ui/sonner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       forcedTheme="dark"
     >
       {children}
+      <Toaster />
     </NextThemesProvider>
   );
 }

@@ -1,10 +1,6 @@
-import {
-  BellIcon,
-  CircleUserRoundIcon,
-  CreditCardIcon,
-  EllipsisVerticalIcon,
-  LogOutIcon,
-} from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
+import { EllipsisVerticalIcon, LogOutIcon, UserRoundIcon } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -21,6 +17,22 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { authClient } from "@/lib/auth-client";
+import { clearCachedSession } from "@/lib/session-cache";
+
+const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+
+// Grapheme-aware so emoji and combining accents are never split in half.
+const getInitials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter((word) => /^\p{L}/u.test(word))
+    .slice(0, 2)
+    .map((word) => {
+      const [first] = graphemes.segment(word);
+      return first.segment.toUpperCase();
+    })
+    .join("");
 
 export function NavUser({
   user,
@@ -28,26 +40,58 @@ export function NavUser({
   user: {
     name: string;
     email: string;
-    avatar: string;
+    avatar?: string | null;
   };
 }) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
+  const displayName = user.name.trim() || user.email.split("@")[0];
+  const initials = getInitials(displayName);
+
+  const avatar = (
+    <Avatar className="size-8 rounded-lg after:rounded-lg">
+      {user.avatar && (
+        <AvatarImage src={user.avatar} alt="" className="rounded-lg" />
+      )}
+      <AvatarFallback className="rounded-lg">
+        {initials || <UserRoundIcon className="size-4" />}
+      </AvatarFallback>
+    </Avatar>
+  );
+
+  const handleLogout = async () => {
+    const { error } = await authClient.signOut();
+
+    if (error) {
+      toast.error("Couldn’t log out. Please try again.");
+      return;
+    }
+
+    clearCachedSession();
+    await router.navigate({ to: "/" });
+  };
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />
+              <SidebarMenuButton
+                size="lg"
+                className="transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98] aria-expanded:bg-muted motion-reduce:active:scale-100"
+              />
             }
           >
-            <Avatar className="size-8 rounded-lg grayscale">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-            </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs text-foreground/70">
+            {avatar}
+            <div className="grid min-w-0 flex-1 text-left text-sm leading-snug">
+              <span className="truncate font-medium" title={displayName}>
+                {displayName}
+              </span>
+              <span
+                className="truncate text-foreground/70 text-xs"
+                title={user.email}
+              >
                 {user.email}
               </span>
             </div>
@@ -62,13 +106,12 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar className="size-8">
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">
+                  {avatar}
+                  <div className="grid min-w-0 flex-1 text-left text-sm leading-snug">
+                    <span className="font-medium [overflow-wrap:anywhere]">
+                      {displayName}
+                    </span>
+                    <span className="text-muted-foreground text-xs [overflow-wrap:anywhere]">
                       {user.email}
                     </span>
                   </div>
@@ -76,22 +119,7 @@ export function NavUser({
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <CircleUserRoundIcon />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCardIcon />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BellIcon />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOutIcon />
               Log out
             </DropdownMenuItem>
