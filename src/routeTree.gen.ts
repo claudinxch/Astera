@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppNewProgramRouteImport } from './routes/app/new-program'
 import { Route as AppMainRouteRouteImport } from './routes/app/_main/route'
 import { Route as AppMainIndexRouteImport } from './routes/app/_main/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppNewProgramRoute = AppNewProgramRouteImport.update({
+  id: '/new-program',
+  path: '/new-program',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppMainRouteRoute = AppMainRouteRouteImport.update({
   id: '/_main',
@@ -50,6 +56,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/app/new-program': typeof AppNewProgramRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/': typeof AppMainIndexRoute
 }
@@ -57,6 +64,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppMainIndexRoute
   '/sign-in': typeof SignInRoute
+  '/app/new-program': typeof AppNewProgramRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -65,20 +73,23 @@ export interface FileRoutesById {
   '/app': typeof AppRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/app/_main': typeof AppMainRouteRouteWithChildren
+  '/app/new-program': typeof AppNewProgramRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/_main/': typeof AppMainIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/sign-in' | '/api/auth/$' | '/app/'
+  fullPaths:
+    '/' | '/app' | '/sign-in' | '/app/new-program' | '/api/auth/$' | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/sign-in' | '/api/auth/$'
+  to: '/' | '/app' | '/sign-in' | '/app/new-program' | '/api/auth/$'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/sign-in'
     | '/app/_main'
+    | '/app/new-program'
     | '/api/auth/$'
     | '/app/_main/'
   fileRoutesById: FileRoutesById
@@ -112,6 +123,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/new-program': {
+      id: '/app/new-program'
+      path: '/new-program'
+      fullPath: '/app/new-program'
+      preLoaderRoute: typeof AppNewProgramRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/app/_main': {
       id: '/app/_main'
@@ -151,10 +169,12 @@ const AppMainRouteRouteWithChildren = AppMainRouteRoute._addFileChildren(
 
 interface AppRouteRouteChildren {
   AppMainRouteRoute: typeof AppMainRouteRouteWithChildren
+  AppNewProgramRoute: typeof AppNewProgramRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppMainRouteRoute: AppMainRouteRouteWithChildren,
+  AppNewProgramRoute: AppNewProgramRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

@@ -46,7 +46,7 @@ export const Route = createFileRoute("/app/_main")({
     ]);
 
     if (programs.length === 0) {
-      throw redirect({ to: "/sign-in" }); // future needs to redirect to onboarding
+      throw redirect({ to: "/app/new-program" });
     }
 
     const activeProgramId = activeProgramIdFromCookie ?? programs[0].id;
@@ -58,11 +58,11 @@ export const Route = createFileRoute("/app/_main")({
 
 function RouteComponent() {
   return (
-    <div className="flex flex-col w-full overflow-hidden h-full">
+    <div className="flex h-full w-full flex-col overflow-hidden">
       <SidebarProvider className="min-h-0 overflow-hidden">
-        <div className="w-screen h-full flex overflow-hidden">
+        <div className="flex h-full w-screen overflow-hidden">
           <AppSidebar />
-          <Card className="flex-1 relative m-2 ml-0 h-auto overflow-hidden">
+          <Card className="relative m-2 ml-0 h-auto flex-1 overflow-hidden">
             <Outlet />
             <CardHeader>
               <CardTitle className="gap-4">
@@ -94,7 +94,7 @@ function RouteComponent() {
                     }
                   />
                   <PopoverContent
-                    className="p-4 flex flex-col gap-4"
+                    className="flex flex-col gap-4 p-4"
                     align="end"
                   >
                     <div className="flex w-full items-center gap-2">
@@ -128,8 +128,8 @@ function RouteComponent() {
                 </Popover>
               </CardAction>
             </CardHeader>
-            <CardContent className="overflow-y-auto items-center flex flex-col  flex-1">
-              <div className="text-foreground-secondary flex flex-col items-center justify-center gap-4 m-auto flex-1 p-4"></div>
+            <CardContent className="flex flex-1 flex-col items-center overflow-y-auto">
+              <div className="m-auto flex flex-1 flex-col items-center justify-center gap-4 p-4 text-foreground-secondary"></div>
             </CardContent>
           </Card>
         </div>
